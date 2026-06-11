@@ -171,97 +171,32 @@ INSERT INTO CENTRO_SALUD (Nombre, Direccion) VALUES
 ('Sede Central - Hospital Mendoza', 'Av. San Martín 1234, Ciudad'),
 ('Sede Norte - Centro de Especialidades', 'Ruta 40 Km 12, Las Heras');
 
+
 -- 2. Insertar Médicos con especialidades que coincidan con los filtros
 INSERT INTO MEDICO (Matricula, Nombre, Apellido, Especialidad) VALUES 
 ('M-55512', 'Juan', 'Pérez', 'Cardiología'),
 ('M-99823', 'Ana', 'Gómez', 'Traumatología'),
-('M-11223', 'Carlos', 'Mendoza', 'Laboratorio');
-
--- 3. Insertar Oferta de Turnos Disponibles
-INSERT INTO TURNO (id_medico, id_centroSalud, id_paciente, Fecha_hora, Estado) VALUES 
-(1, 1, NULL, '2026-08-15 09:00:00', 'Disponible'),
-(1, 1, NULL, '2026-08-15 09:30:00', 'Disponible'),
-(2, 2, NULL, '2026-08-16 10:15:00', 'Disponible'),
-(3, 1, NULL, '2026-08-17 11:00:00', 'Disponible');
-
--- 4. Opcional: Insertar una Obra Social
-INSERT INTO COBERTURA_MEDICA (Nombre_OS, Tipo) VALUES 
-('OSDE', 'Prepaga'),
-('Obras Sociales Provinciales', 'Obra Social');
+('M-11223', 'Carlos', 'Mendoza', 'Laboratorio'),
+('M-44556', 'Laura', 'Estévez', 'Laboratorio');
 
 
-
-
--- 1. LIMPIAR DATOS PREVIOS (Para evitar conflictos de claves duplicadas al probar)
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE TURNO;
-SET FOREIGN_KEY_CHECKS = 1;
-
-
--- 2. INSERTAR USUARIO PRINCIPAL (EL PACIENTE LOGUEADO)
--- Nota: Asegurate de que el 'id_usuario' coincida con el que guarda tu $_SESSION['id_usuario']
-INSERT INTO USUARIO (id_usuario, DNI, Nombre, Apellido, Email, Telefono, Rango_edad, Contrasenia) VALUES 
-(2, '40123456', 'Mariano', 'Funes', 'paciente@saludmza.com', '2615554433', 'Adulto', '$2y$10$xyz...contrasenia_hasheada_dummy');
-
-
--- 3. INSERTAR MEDICOS (Para la grilla de turnos y emisores de recetas)
-INSERT INTO MEDICO (id_medico, Matricula, Nombre, Apellido, Especialidad) VALUES 
-(4, 'M-44556', 'Laura', 'Estévez', 'Laboratorio');
-
-
--- 4. INSERTAR TURNOS DISPONIBLES (Aparecerán al presionar "Buscar Horarios" en turnos.php)
--- Usamos fechas futuras reales (año 2026) para que pasen el filtro 'Fecha_hora >= NOW()'
-INSERT INTO TURNO (id_medico, id_centroSalud, id_paciente, Fecha_hora, Estado, Check_iN) VALUES 
-(4, 1, NULL, '2026-08-18 08:15:00', 'Disponible', FALSE);
-
-
--- 5. INSERTAR TURNOS YA RESERVADOS POR EL PACIENTE (Aparecerán en la pestaña 'Activos')
-INSERT INTO TURNO (id_medico, id_centroSalud, id_paciente, Fecha_hora, Estado, Check_iN) VALUES 
-(1, 1, 1, '2026-07-20 11:00:00', 'Reservado', FALSE),
-(2, 2, 1, '2026-07-22 09:45:00', 'Reservado', TRUE); -- Este ya tiene Check-In hecho
-
-
--- 6. INSERTAR REGISTROS DE HISTORIAL (Turnos del pasado para la pestaña 'Historial')
-INSERT INTO TURNO (id_medico, id_centroSalud, id_paciente, Fecha_hora, Estado, Check_iN) VALUES 
-(1, 1, 1, '2025-03-10 08:30:00', 'Atendido', TRUE),
-(4, 1, 1, '2025-05-14 09:00:00', 'Atendido', TRUE);
-
-
--- 7. INSERTAR LISTAS DE ESPERA ACTIVAS
-INSERT INTO LISTA_ESPERA (id_paciente, id_medico, id_centroSalud, fecha_inscripcion, estado) VALUES 
-(1, 1, 1, '2026-06-10 14:20:00', 'Activa');
-
-
--- 8. INSERTAR RECETAS DIGITALES (Para la sección de farmacia.php)
-INSERT INTO RECETA_DIGITAL (id_receta, id_paciente, id_medico_emisor, Fecha_emision, Estado, Url_pdf) VALUES 
-(101, 1, 1, '2026-06-01 10:00:00', 'Activa', 'receta_cardio.pdf'),
-(102, 1, 3, '2026-06-05 11:30:00', 'Dispensada', 'receta_pediatria.pdf');
-
-
--- 9. INSERTAR MEDICAMENTOS (Stock físico de farmacia para farmacia.php)
+-- 3. INSERTAR MEDICAMENTOS (Stock físico de farmacia para farmacia.php)
 INSERT INTO MEDICAMENTO (id_medicamento, id_centroSalud, Nombre_comercial, Droga, Stock_actual) VALUES 
 (1, 1, 'Losartán 50mg', 'Losartán', 45),
 (2, 1, 'Amoxicilina 500mg', 'Amoxicilina', 8), -- Poco stock (saldrá en rojo)
 (3, 2, 'Ibuprofeno 400mg', 'Ibuprofeno', 120),
 (4, 1, 'Paracetamol 500mg', 'Paracetamol', 75);
 
+-- 4. INSERTAR RECETAS DIGITALES (Para la sección de farmacia.php)
+INSERT INTO RECETA_DIGITAL (id_receta, id_paciente, id_medico_emisor, Fecha_emision, Estado, Url_pdf) VALUES 
+(101, 1, 1, '2026-06-01 10:00:00', 'Activa', 'receta_cardio.pdf'),
+(102, 1, 3, '2026-06-05 11:30:00', 'Dispensada', 'receta_pediatria.pdf');
 
--- 10. VINCULAR LOS DETALLES DE LAS RECETAS
+
+-- 5. VINCULAR LOS DETALLES DE LAS RECETAS
 INSERT INTO DETALLE_RECETA (id_receta, id_medicamento, Cantidad_recetada, Dosis_indicated) VALUES 
 (101, 1, 2, '1 comprimido cada 12 horas'),
 (102, 2, 1, '5ml cada 8 horas por 7 días');
-
-
-INSERT INTO ESTUDIO_MEDICO (id_paciente, id_medico_emisor, Tipo_estudio, Descripcion, Url_pdf, Fecha_emision, Estado_resultado) VALUES 
-(1, 4, 'Laboratorio', 'Hemograma y Perfil Lipídico', 'analisis_sangre.pdf', NOW(), 'Cargado');
-
-
-
-
--- 1. LIMPIAR ESTUDIOS PREVIOS PARA EVITAR ERRORES
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE ESTUDIO_MEDICO;
-SET FOREIGN_KEY_CHECKS = 1;
 
 
 -- Estudios para el Usuario ID = 1
